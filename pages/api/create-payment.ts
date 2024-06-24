@@ -14,12 +14,12 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         paymentTransactionType: "nmkr_pay_specific",
         customProperties: {},
         paymentgatewayParameters: {
-            priceInLovelace: FIXED_PRICE_LOVELACE,
           mintnfts: {
             reserveNfts: [
               { 
                 nftUid: nftUid,
-                tokencount: tokencount
+                tokencount: tokencount,
+                lovelace: FIXED_PRICE_LOVELACE // Set the fixed price here
               }
             ]
           }
@@ -48,7 +48,11 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       res.status(200).json(data);
     } catch (error) {
       console.error('Error creating payment transaction:', error);
-      res.status(500).json({ error: 'Error creating payment transaction', details: error.message });
+      if (error instanceof Error) {
+        res.status(500).json({ error: 'Error creating payment transaction', details: error.message });
+      } else {
+        res.status(500).json({ error: 'Error creating payment transaction', details: 'An unknown error occurred' });
+      }
     }
   } else {
     res.setHeader('Allow', ['POST']);
